@@ -1,42 +1,19 @@
-// read json from a url using fetch and get the response
+// fetch JSON data from the people.json file
 const peopleRaw = await fetch('people.json');
-
-// unpack the json into a data structure in memory ('deserialize')
 const people = await peopleRaw.json();
 
-// Or as a oneliner
-// const people = await(await fetch('people.json')).json();
-
-// A for...of loop with a destructuring assignment
-// to get each property from a person as a separate
-// variable inside the loop
-/*let html = '';
-for (let { firstName, lastName, email } of people) {
-  html += `
-    <div class="person">
-      <p><b>First name:</b> ${firstName}</p>
-      <p><b>Last name:</b> ${lastName}</p>
-      <p><b>Email:</b> ${email}</p>
-    </div>
-  `;
-}*/
-
+//function to render the list on the screen 
 function render(search = '') {
 
-  // A modern programming pattern (in many languages)
-  // is using a chain of array methods to calculate a result
-  // filter, storting, mapping until we're happy :)
-
-  // Using map instead of a loop
-  // to convert our array of objects (people) to html
+  //filter and sort the array
   let html = people
-    // return true on filtering if search is an empty string
-    // or firstName starts with the search
-    .filter(({ firstName }) => search === ''
-      || firstName.toLowerCase().startsWith(search.toLowerCase()))
-    // sort by firstName
-    .toSorted((a, b) => a.firstName > b.firstName ? 1 : - 1)
-    // map to convert each element to a string with html
+
+    //filter people whose email contains the search text
+    .filter(({ email }) => search === ''
+      || email.toLowerCase().includes(search.toLowerCase()))
+    //sort alphabetically by email
+    .toSorted((a, b) => a.email.localeCompare(b.email))
+    //generate HTML for each person
     .map(({ firstName, lastName, email }) => `
     <section class="person">
       <p><b>First name:</b> ${firstName}</p>
@@ -44,23 +21,20 @@ function render(search = '') {
       <p><b>Email:</b> ${email}</p>
     </section>
   `)
-    // join to join our array of strings into one large string
+    // join all HTML strings into one large string
     .join('');
 
-  // replace the content of article.people element with our new html
+  // insert the generated HTML into the .people element
   document.querySelector('.people').innerHTML = html;
 
 }
 
 // add a keyup event handler to our search field
 document.querySelector('.search-field')
-  .addEventListener('keyup', event => {
-    // the event object has a target the html element
-    // that trigger the event and all input element have a value
-    render(event.target.value);
-  });
+  .addEventListener('keyup', event => render(event.target.value));
 
 
-// initial rendering of list of people to screen
+
+// initial render when the page loads
 render();
 
